@@ -11,13 +11,19 @@ class MigrateOldPreferences < ActiveRecord::Migration
   private
   def migrate_preferences klass
     klass.reset_column_information
-    klass.find_each do |record|
-      store = Spree::Preferences::ScopedStore.new(record.class.name.underscore, record.id)
-      record.defined_preferences.each do |key|
-        value = store.fetch(key){}
-        record.preferences[key] = value unless value.nil?
+    begin
+      klass.find_each do |record|
+        store = Spree::Preferences::ScopedStore.new(record.class.name.underscore, record.id)
+        record.defined_preferences.each do |key|
+          value = store.fetch(key){}
+          record.preferences[key] = value unless value.nil?
+        end
+        record.save!
       end
-      record.save!
     end
+    rescue
+      # Spree::Calculator::PerItem has since been removed in 2.2.stable, rescue in silent to
+      # ignore error: NameError: uninitialized constant Spree::Calculator::PerItem
+    end      
   end
 end
