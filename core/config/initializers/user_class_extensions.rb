@@ -15,6 +15,8 @@ Spree::Core::Engine.config.to_prepare do
 
       belongs_to :ship_address, class_name: 'Spree::Address'
       belongs_to :bill_address, class_name: 'Spree::Address'
+      
+      before_save :generate_admin_api_key
 
       # has_spree_role? simply needs to return true or false whether a user has a role or not.
       def has_spree_role?(role_in_question)
@@ -23,6 +25,10 @@ Spree::Core::Engine.config.to_prepare do
 
       def last_incomplete_spree_order
         orders.incomplete.order('created_at DESC').first
+      end
+      
+      def generate_admin_api_key
+        generate_spree_api_key if self.admin? && self.spree_api_key.blank?
       end
     end
   end
