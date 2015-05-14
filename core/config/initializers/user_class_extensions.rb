@@ -9,14 +9,13 @@ Spree::Core::Engine.config.to_prepare do
       has_and_belongs_to_many :spree_roles,
                               join_table: 'spree_roles_users',
                               foreign_key: "user_id",
-                              class_name: "Spree::Role"
+                              class_name: "Spree::Role",
+                              after_add: :generate_admin_api_key
 
       has_many :orders, foreign_key: :user_id, class_name: "Spree::Order"
 
       belongs_to :ship_address, class_name: 'Spree::Address'
       belongs_to :bill_address, class_name: 'Spree::Address'
-      
-      before_save :generate_admin_api_key
 
       # has_spree_role? simply needs to return true or false whether a user has a role or not.
       def has_spree_role?(role_in_question)
@@ -28,7 +27,7 @@ Spree::Core::Engine.config.to_prepare do
       end
       
       def generate_admin_api_key
-        generate_spree_api_key if self.admin? && self.spree_api_key.blank?
+        generate_spree_api_key! if self.admin? && self.spree_api_key.blank?
       end
     end
   end
