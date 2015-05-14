@@ -26,7 +26,7 @@ Spree::Core::Engine.config.to_prepare do
         orders.incomplete.order('created_at DESC').first
       end
       
-      def generate_admin_api_key
+      def generate_admin_api_key(role=nil)
         generate_spree_api_key! if self.admin? && self.spree_api_key.blank?
       end
     end
