@@ -1,8 +1,7 @@
 module Spree::Preferences
   module PreferableClassMethods
 
-    def preference(name, type, *args)
-      options = args.extract_options!
+    def preference(name, type, options={})
       options.assert_valid_keys(:default)
       default = options[:default]
       default = ->{ options[:default] } unless default.is_a?(Proc)
@@ -18,6 +17,7 @@ module Spree::Preferences
       define_method preference_setter_method(name) do |value|
         value = convert_preference_value(value, type)
         preferences[name] = value
+        db_preferences[name] = value if respond_to?(:db_preferences)
 
         # If this is an activerecord object, we need to inform
         # ActiveRecord::Dirty that this value has changed, since this is an
